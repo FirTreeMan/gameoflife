@@ -92,12 +92,13 @@ canvas#canvas {
 
 .section-title-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 4px;
   margin-bottom: 8px;
 }
 .section-title-row .section-title {
   margin-bottom: 0;
+  flex: 1;
 }
 .section-title-row button {
   font-size: 9px;
@@ -162,6 +163,32 @@ input[type="range"] {
   accent-color: #00ff41;
   cursor: pointer;
   height: 4px;
+}
+
+/* Rule input */
+.rule-input {
+  width: 100%;
+  background: #1a1a30;
+  border: 1px solid #333;
+  color: #999;
+  font-family: inherit;
+  font-size: 11px;
+  padding: 4px 6px;
+  border-radius: 3px;
+  margin-top: 6px;
+  transition: border-color 0.15s;
+}
+.rule-input:hover {
+  border-color: #444;
+}
+.rule-input:focus {
+  outline: none;
+  border-color: #00ff41;
+  color: #c0c0c0;
+}
+.rule-input::placeholder {
+  color: #444;
+  font-style: italic;
 }
 
 /* Saved rules */

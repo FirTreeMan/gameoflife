@@ -135,6 +135,7 @@ function setupRuleToggles(containerId, ruleSet) {
         ruleSet.add(n);
         btn.classList.add('active');
       }
+      highlightActiveSavedRule();
     });
   });
 }
@@ -197,6 +198,15 @@ function rulesetLabel(birthRule, survivalRule) {
   return `B${b}/S${s}`;
 }
 
+function highlightActiveSavedRule() {
+  const currentLabel = rulesetLabel(sim.birthRule, sim.survivalRule);
+  document.querySelectorAll('.saved-rule-btn').forEach(btn => {
+    const label = btn.childNodes[0].textContent;
+    if (label === currentLabel) btn.classList.add('active');
+    else btn.classList.remove('active');
+  });
+}
+
 function renderSavedRules() {
   const container = document.getElementById('saved-rules');
   container.innerHTML = '';
@@ -219,6 +229,7 @@ function renderSavedRules() {
     btn.appendChild(removeBtn);
     container.appendChild(btn);
   });
+  highlightActiveSavedRule();
 }
 
 function saveCurrentRuleset() {
@@ -231,6 +242,24 @@ function saveCurrentRuleset() {
   renderSavedRules();
 }
 
+function parseRuleString(str) {
+  const m = str.trim().toUpperCase().match(/^B([1-8]*)\/S([1-8]*)$/);
+  if (!m) return null;
+  const birth = new Set([...m[1]].map(Number));
+  const survival = new Set([...m[2]].map(Number));
+  return { birth, survival };
+}
+
+function addRuleFromString(str) {
+  const parsed = parseRuleString(str);
+  if (!parsed) return false;
+  const label = rulesetLabel(parsed.birth, parsed.survival);
+  if (savedRulesets.some(r => r.label === label)) return true; // duplicate, still "success"
+  savedRulesets.push({ birth: parsed.birth, survival: parsed.survival, label });
+  renderSavedRules();
+  return true;
+}
+
 function loadRuleset(entry) {
   sim.birthRule.clear();
   entry.birth.forEach(n => sim.birthRule.add(n));
@@ -238,6 +267,7 @@ function loadRuleset(entry) {
   entry.survival.forEach(n => sim.survivalRule.add(n));
   syncToggleUI('birth-toggles', sim.birthRule);
   syncToggleUI('survival-toggles', sim.survivalRule);
+  highlightActiveSavedRule();
 }
 
 function syncToggleUI(containerId, ruleSet) {
@@ -275,10 +305,28 @@ export function setupUI() {
   document.getElementById('random-rules-btn').addEventListener('click', () => {
     randomizeRuleSet('birth-toggles', sim.birthRule);
     randomizeRuleSet('survival-toggles', sim.survivalRule);
+    highlightActiveSavedRule();
   });
 
   // Save rules
   document.getElementById('save-rules-btn').addEventListener('click', saveCurrentRuleset);
+
+  // Rule input (type + Enter, or paste)
+  const ruleInput = document.getElementById('rule-input');
+  ruleInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      if (addRuleFromString(ruleInput.value)) {
+        ruleInput.value = '';
+      }
+    }
+  });
+  ruleInput.addEventListener('paste', (e) => {
+    const text = (e.clipboardData || window.clipboardData).getData('text');
+    if (addRuleFromString(text)) {
+      e.preventDefault();
+      ruleInput.value = '';
+    }
+  });
 
   // Mutation slider + editable input
   const mutationSlider = document.getElementById('mutation-slider');
