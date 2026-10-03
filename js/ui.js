@@ -2,7 +2,7 @@ import {
   sim, getCells, resetCells, viewport, interaction,
   popHistory, POP_HISTORY_MAX, PATTERNS
 } from './state.js';
-import { doStep } from './simulation.js';
+import { doStep, seedCenter, resizeGrid } from './simulation.js';
 import { zoomIn, zoomOut, fitToContent } from './viewport.js';
 
 let simIntervalId = null;
@@ -157,15 +157,12 @@ function randomizeRuleSet(containerId, ruleSet) {
 // MUTATION SLIDER MAPPING
 // ============================================================
 function sliderToRate(v) {
-  if (v === 0) return 0;
-  const normalized = v / 1000;
-  return Math.pow(normalized, 3);
+  return v / 1000;
 }
 
 function formatRate(rate) {
-  if (rate === 0) return '0';
-  if (rate < 0.0001) return rate.toExponential(1);
-  return rate.toFixed(4);
+  if (rate === 0) return '0%';
+  return (rate * 100).toFixed(1) + '%';
 }
 
 // ============================================================
@@ -217,13 +214,99 @@ export function setupUI() {
     randomizeRuleSet('survival-toggles', sim.survivalRule);
   });
 
-  // Mutation slider
+  // Mutation slider + editable input
   const mutationSlider = document.getElementById('mutation-slider');
   const mutationVal = document.getElementById('mutation-val');
+
   mutationSlider.addEventListener('input', () => {
     const rate = sliderToRate(parseInt(mutationSlider.value, 10));
     sim.mutationRate = rate;
-    mutationVal.textContent = formatRate(rate);
+    mutationVal.value = formatRate(rate);
+  });
+
+  mutationVal.addEventListener('change', () => {
+    let raw = mutationVal.value.trim().replace(/%$/, '');
+    let pct = parseFloat(raw);
+    if (isNaN(pct)) pct = 0;
+    pct = Math.max(0, Math.min(100, pct));
+    const rate = pct / 100;
+    sim.mutationRate = rate;
+    mutationSlider.value = Math.round(rate * 1000);
+    mutationVal.value = formatRate(rate);
+  });
+
+  // Seed center slider + button
+  const seedSlider = document.getElementById('seed-slider');
+  const seedVal = document.getElementById('seed-val');
+  let seedRate = 0.5;
+
+  seedSlider.addEventListener('input', () => {
+    seedRate = parseInt(seedSlider.value, 10) / 1000;
+    seedVal.value = formatRate(seedRate);
+  });
+
+  seedVal.addEventListener('change', () => {
+    let raw = seedVal.value.trim().replace(/%$/, '');
+    let pct = parseFloat(raw);
+    if (isNaN(pct)) pct = 0;
+    pct = Math.max(0, Math.min(100, pct));
+    seedRate = pct / 100;
+    seedSlider.value = Math.round(seedRate * 1000);
+    seedVal.value = formatRate(seedRate);
+  });
+
+  // Seed size slider
+  const seedSizeSlider = document.getElementById('seed-size-slider');
+  const seedSizeVal = document.getElementById('seed-size-val');
+  let seedSize = 334;
+
+  seedSizeSlider.addEventListener('input', () => {
+    seedSize = parseInt(seedSizeSlider.value, 10);
+    seedSizeVal.value = seedSize;
+  });
+
+  seedSizeVal.addEventListener('change', () => {
+    let v = parseInt(seedSizeVal.value.trim(), 10);
+    if (isNaN(v)) v = 334;
+    v = Math.max(1, Math.min(1000, v));
+    seedSize = v;
+    seedSizeSlider.value = v;
+    seedSizeVal.value = v;
+  });
+
+  document.getElementById('seed-btn').addEventListener('click', () => {
+    seedCenter(seedRate, seedSize);
+    updateInfo();
+  });
+
+  // Grid size slider + button
+  const gridSizeSlider = document.getElementById('grid-size-slider');
+  const gridSizeVal = document.getElementById('grid-size-val');
+  let pendingGridSize = 1000;
+
+  gridSizeSlider.addEventListener('input', () => {
+    pendingGridSize = parseInt(gridSizeSlider.value, 10);
+    gridSizeVal.value = pendingGridSize;
+  });
+
+  gridSizeVal.addEventListener('change', () => {
+    let v = parseInt(gridSizeVal.value.trim(), 10);
+    if (isNaN(v)) v = 1000;
+    v = Math.max(10, Math.min(5000, v));
+    pendingGridSize = v;
+    gridSizeSlider.value = v;
+    gridSizeVal.value = v;
+  });
+
+  document.getElementById('grid-size-btn').addEventListener('click', () => {
+    resizeGrid(pendingGridSize);
+    seedSizeSlider.max = pendingGridSize;
+    if (seedSize > pendingGridSize) {
+      seedSize = pendingGridSize;
+      seedSizeSlider.value = seedSize;
+      seedSizeVal.value = seedSize;
+    }
+    updateInfo();
   });
 
   // Collapse toggle

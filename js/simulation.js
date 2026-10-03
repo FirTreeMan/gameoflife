@@ -1,4 +1,4 @@
-import { GRID_SIZE, getCells, setCells, sim, recordPopulation } from './state.js';
+import { GRID_SIZE, getCells, setCells, sim, recordPopulation, setGridSize } from './state.js';
 
 export function cellKey(x, y) {
   return x + ',' + y;
@@ -54,7 +54,6 @@ export function applyMutation() {
   const liveCells = getCells();
   const totalCells = GRID_SIZE * GRID_SIZE;
   let numToggles = Math.round(sim.mutationRate * totalCells);
-  numToggles = Math.min(numToggles, 500000);
 
   for (let i = 0; i < numToggles; i++) {
     const x = Math.floor(Math.random() * GRID_SIZE);
@@ -66,6 +65,42 @@ export function applyMutation() {
       liveCells.add(key);
     }
   }
+}
+
+export function seedCenter(rate, size) {
+  if (rate <= 0 || size <= 0) return;
+  const liveCells = getCells();
+  const half = Math.floor(size / 2);
+  const center = Math.floor(GRID_SIZE / 2);
+  const minC = Math.max(0, center - half);
+  const maxC = Math.min(GRID_SIZE, minC + size);
+  const span = maxC - minC;
+  const regionCells = span * span;
+  let numToggles = Math.round(rate * regionCells);
+
+  for (let i = 0; i < numToggles; i++) {
+    const x = minC + Math.floor(Math.random() * span);
+    const y = minC + Math.floor(Math.random() * span);
+    const key = cellKey(x, y);
+    if (liveCells.has(key)) {
+      liveCells.delete(key);
+    } else {
+      liveCells.add(key);
+    }
+  }
+}
+
+export function resizeGrid(newSize) {
+  setGridSize(newSize);
+  const liveCells = getCells();
+  const next = new Set();
+  for (const key of liveCells) {
+    const [x, y] = parseKey(key);
+    if (x >= 0 && x < newSize && y >= 0 && y < newSize) {
+      next.add(key);
+    }
+  }
+  setCells(next);
 }
 
 export function doStep() {

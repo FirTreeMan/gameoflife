@@ -70,7 +70,25 @@
     <div class="slider-row">
       <label>Rate</label>
       <input type="range" id="mutation-slider" min="0" max="1000" value="0">
-      <span class="slider-value" id="mutation-val">0</span>
+      <input type="text" id="mutation-val" class="editable-value" value="0%">
+    </div>
+  </div>
+
+  <!-- Seed Center -->
+  <div class="section">
+    <div class="section-title">Seed Center</div>
+    <div class="slider-row">
+      <label>Rate</label>
+      <input type="range" id="seed-slider" min="0" max="1000" value="500">
+      <input type="text" id="seed-val" class="editable-value" value="50%">
+    </div>
+    <div class="slider-row">
+      <label>Size</label>
+      <input type="range" id="seed-size-slider" min="1" max="1000" value="334">
+      <input type="text" id="seed-size-val" class="editable-value" value="334">
+    </div>
+    <div class="btn-row" style="margin-top:6px">
+      <button id="seed-btn" style="flex:1">Seed</button>
     </div>
   </div>
 
@@ -78,14 +96,20 @@
   <div class="section">
     <div class="section-title">Patterns</div>
     <div class="pattern-grid">
-      <button class="pattern-btn" data-pattern="glider">Glider</button>
-      <button class="pattern-btn" data-pattern="lwss">LWSS</button>
-      <button class="pattern-btn" data-pattern="pulsar">Pulsar</button>
-      <button class="pattern-btn" data-pattern="rpentomino">R-pent</button>
-      <button class="pattern-btn" data-pattern="gospergun">Gun</button>
-      <button class="pattern-btn" data-pattern="pentadecathlon">Penta</button>
     </div>
     <div id="stamp-hint">Click to place &middot; R to rotate &middot; Esc to cancel</div>
+  </div>
+
+  <!-- Grid Size -->
+  <div class="section">
+    <div class="section-title">Grid Size</div>
+    <div class="slider-row">
+      <input type="range" id="grid-size-slider" min="10" max="5000" value="1000">
+      <input type="text" id="grid-size-val" class="editable-value" value="1000">
+    </div>
+    <div class="btn-row" style="margin-top:6px">
+      <button id="grid-size-btn" style="flex:1">Resize</button>
+    </div>
   </div>
 
   <!-- Population graph -->

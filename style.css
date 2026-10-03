@@ -164,6 +164,28 @@ input[type="range"] {
   height: 4px;
 }
 
+/* Editable slider value */
+.editable-value {
+  background: #1a1a30;
+  border: 1px solid transparent;
+  color: #999;
+  font-family: inherit;
+  font-size: 11px;
+  width: 50px;
+  text-align: right;
+  padding: 1px 4px;
+  border-radius: 3px;
+  transition: border-color 0.15s;
+}
+.editable-value:hover {
+  border-color: #444;
+}
+.editable-value:focus {
+  outline: none;
+  border-color: #00ff41;
+  color: #c0c0c0;
+}
+
 /* Rule toggle editor */
 .rule-toggle-group {
   display: flex;
