@@ -1,6 +1,6 @@
 import {
   sim, getCells, resetCells, viewport, interaction,
-  popHistory, POP_HISTORY_MAX, PATTERNS
+  popHistory, POP_HISTORY_MAX, PATTERNS, GRID_SIZE
 } from './state.js';
 import { doStep, seedCenter, resizeGrid } from './simulation.js';
 import { zoomIn, zoomOut, fitToContent } from './viewport.js';
@@ -187,6 +187,69 @@ function selectPattern(name) {
 }
 
 // ============================================================
+// SAVED RULESETS
+// ============================================================
+const savedRulesets = [];
+
+function rulesetLabel(birthRule, survivalRule) {
+  const b = [...birthRule].sort().join('');
+  const s = [...survivalRule].sort().join('');
+  return `B${b}/S${s}`;
+}
+
+function renderSavedRules() {
+  const container = document.getElementById('saved-rules');
+  container.innerHTML = '';
+  savedRulesets.forEach((entry, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'saved-rule-btn';
+    btn.textContent = entry.label;
+    btn.title = 'Load ' + entry.label;
+    btn.addEventListener('click', () => loadRuleset(entry));
+
+    const removeBtn = document.createElement('span');
+    removeBtn.className = 'remove-rule';
+    removeBtn.textContent = '\u00d7';
+    removeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      savedRulesets.splice(idx, 1);
+      renderSavedRules();
+    });
+
+    btn.appendChild(removeBtn);
+    container.appendChild(btn);
+  });
+}
+
+function saveCurrentRuleset() {
+  const birth = new Set(sim.birthRule);
+  const survival = new Set(sim.survivalRule);
+  const label = rulesetLabel(birth, survival);
+  // Don't save duplicates
+  if (savedRulesets.some(r => r.label === label)) return;
+  savedRulesets.push({ birth, survival, label });
+  renderSavedRules();
+}
+
+function loadRuleset(entry) {
+  sim.birthRule.clear();
+  entry.birth.forEach(n => sim.birthRule.add(n));
+  sim.survivalRule.clear();
+  entry.survival.forEach(n => sim.survivalRule.add(n));
+  syncToggleUI('birth-toggles', sim.birthRule);
+  syncToggleUI('survival-toggles', sim.survivalRule);
+}
+
+function syncToggleUI(containerId, ruleSet) {
+  const container = document.getElementById(containerId);
+  container.querySelectorAll('.rule-toggle').forEach(btn => {
+    const n = parseInt(btn.dataset.n, 10);
+    if (ruleSet.has(n)) btn.classList.add('active');
+    else btn.classList.remove('active');
+  });
+}
+
+// ============================================================
 // SETUP
 // ============================================================
 export function setupUI() {
@@ -213,6 +276,9 @@ export function setupUI() {
     randomizeRuleSet('birth-toggles', sim.birthRule);
     randomizeRuleSet('survival-toggles', sim.survivalRule);
   });
+
+  // Save rules
+  document.getElementById('save-rules-btn').addEventListener('click', saveCurrentRuleset);
 
   // Mutation slider + editable input
   const mutationSlider = document.getElementById('mutation-slider');
@@ -255,27 +321,29 @@ export function setupUI() {
     seedVal.value = formatRate(seedRate);
   });
 
-  // Seed size slider
+  // Seed size slider (percentage of grid)
   const seedSizeSlider = document.getElementById('seed-size-slider');
   const seedSizeVal = document.getElementById('seed-size-val');
-  let seedSize = 334;
+  let seedSizePct = 1 / 3;
 
   seedSizeSlider.addEventListener('input', () => {
-    seedSize = parseInt(seedSizeSlider.value, 10);
-    seedSizeVal.value = seedSize;
+    seedSizePct = parseInt(seedSizeSlider.value, 10) / 1000;
+    seedSizeVal.value = formatRate(seedSizePct);
   });
 
   seedSizeVal.addEventListener('change', () => {
-    let v = parseInt(seedSizeVal.value.trim(), 10);
-    if (isNaN(v)) v = 334;
-    v = Math.max(1, Math.min(1000, v));
-    seedSize = v;
-    seedSizeSlider.value = v;
-    seedSizeVal.value = v;
+    let raw = seedSizeVal.value.trim().replace(/%$/, '');
+    let pct = parseFloat(raw);
+    if (isNaN(pct)) pct = 33.3;
+    pct = Math.max(0, Math.min(100, pct));
+    seedSizePct = pct / 100;
+    seedSizeSlider.value = Math.round(seedSizePct * 1000);
+    seedSizeVal.value = formatRate(seedSizePct);
   });
 
   document.getElementById('seed-btn').addEventListener('click', () => {
-    seedCenter(seedRate, seedSize);
+    const size = Math.max(1, Math.round(seedSizePct * GRID_SIZE));
+    seedCenter(seedRate, size);
     updateInfo();
   });
 
@@ -300,12 +368,6 @@ export function setupUI() {
 
   document.getElementById('grid-size-btn').addEventListener('click', () => {
     resizeGrid(pendingGridSize);
-    seedSizeSlider.max = pendingGridSize;
-    if (seedSize > pendingGridSize) {
-      seedSize = pendingGridSize;
-      seedSizeSlider.value = seedSize;
-      seedSizeVal.value = seedSize;
-    }
     updateInfo();
   });
 

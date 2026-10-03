@@ -164,6 +164,42 @@ input[type="range"] {
   height: 4px;
 }
 
+/* Saved rules */
+.saved-rules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin-top: 6px;
+}
+.saved-rules:empty {
+  display: none;
+}
+.saved-rule-btn {
+  font-size: 9px;
+  padding: 2px 5px;
+  position: relative;
+}
+.saved-rule-btn .remove-rule {
+  display: none;
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 12px;
+  height: 12px;
+  line-height: 10px;
+  text-align: center;
+  font-size: 8px;
+  background: #442;
+  border: 1px solid #666;
+  border-radius: 50%;
+  color: #ccc;
+  cursor: pointer;
+  padding: 0;
+}
+.saved-rule-btn:hover .remove-rule {
+  display: block;
+}
+
 /* Editable slider value */
 .editable-value {
   background: #1a1a30;

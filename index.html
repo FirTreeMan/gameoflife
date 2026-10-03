@@ -34,6 +34,7 @@
   <div class="section">
     <div class="section-title-row">
       <div class="section-title">Rules</div>
+      <button id="save-rules-btn" title="Save current rules">Save</button>
       <button id="random-rules-btn" title="Randomize rules">Random</button>
     </div>
     <div class="rule-toggle-group">
@@ -62,6 +63,7 @@
         <button class="rule-toggle" data-n="8">8</button>
       </div>
     </div>
+    <div id="saved-rules" class="saved-rules"></div>
   </div>
 
   <!-- Mutation -->
@@ -84,8 +86,8 @@
     </div>
     <div class="slider-row">
       <label>Size</label>
-      <input type="range" id="seed-size-slider" min="1" max="1000" value="334">
-      <input type="text" id="seed-size-val" class="editable-value" value="334">
+      <input type="range" id="seed-size-slider" min="0" max="1000" value="333">
+      <input type="text" id="seed-size-val" class="editable-value" value="33.3%">
     </div>
     <div class="btn-row" style="margin-top:6px">
       <button id="seed-btn" style="flex:1">Seed</button>
