@@ -190,7 +190,37 @@ function selectPattern(name) {
 // ============================================================
 // SAVED RULESETS
 // ============================================================
+function parseRuleString(str) {
+  const m = str.trim().toUpperCase().match(/^B([1-8]*)\/S([1-8]*)$/);
+  if (!m) return null;
+  const birth = new Set([...m[1]].map(Number));
+  const survival = new Set([...m[2]].map(Number));
+  return { birth, survival };
+}
+
+const STORAGE_KEY = 'gol-saved-rulesets';
 const savedRulesets = [];
+
+function persistRulesets() {
+  const data = savedRulesets.map(r => r.label);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function loadPersistedRulesets() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const labels = JSON.parse(raw);
+    if (!Array.isArray(labels)) return;
+    for (const label of labels) {
+      const parsed = parseRuleString(label);
+      if (!parsed) continue;
+      const l = rulesetLabel(parsed.birth, parsed.survival);
+      if (savedRulesets.some(r => r.label === l)) continue;
+      savedRulesets.push({ birth: parsed.birth, survival: parsed.survival, label: l });
+    }
+  } catch (e) { /* ignore corrupt data */ }
+}
 
 function rulesetLabel(birthRule, survivalRule) {
   const b = [...birthRule].sort().join('');
@@ -223,6 +253,7 @@ function renderSavedRules() {
     removeBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       savedRulesets.splice(idx, 1);
+      persistRulesets();
       renderSavedRules();
     });
 
@@ -239,15 +270,8 @@ function saveCurrentRuleset() {
   // Don't save duplicates
   if (savedRulesets.some(r => r.label === label)) return;
   savedRulesets.push({ birth, survival, label });
+  persistRulesets();
   renderSavedRules();
-}
-
-function parseRuleString(str) {
-  const m = str.trim().toUpperCase().match(/^B([1-8]*)\/S([1-8]*)$/);
-  if (!m) return null;
-  const birth = new Set([...m[1]].map(Number));
-  const survival = new Set([...m[2]].map(Number));
-  return { birth, survival };
 }
 
 function addRuleFromString(str) {
@@ -256,6 +280,7 @@ function addRuleFromString(str) {
   const label = rulesetLabel(parsed.birth, parsed.survival);
   if (savedRulesets.some(r => r.label === label)) return true; // duplicate, still "success"
   savedRulesets.push({ birth: parsed.birth, survival: parsed.survival, label });
+  persistRulesets();
   renderSavedRules();
   return true;
 }
@@ -310,6 +335,10 @@ export function setupUI() {
 
   // Save rules
   document.getElementById('save-rules-btn').addEventListener('click', saveCurrentRuleset);
+
+  // Load persisted rulesets from localStorage
+  loadPersistedRulesets();
+  renderSavedRules();
 
   // Rule input (type + Enter, or paste)
   const ruleInput = document.getElementById('rule-input');
