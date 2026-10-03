@@ -139,6 +139,20 @@ function setupRuleToggles(containerId, ruleSet) {
   });
 }
 
+function randomizeRuleSet(containerId, ruleSet) {
+  ruleSet.clear();
+  const container = document.getElementById(containerId);
+  container.querySelectorAll('.rule-toggle').forEach(btn => {
+    const n = parseInt(btn.dataset.n, 10);
+    if (Math.random() < 0.5) {
+      ruleSet.add(n);
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+}
+
 // ============================================================
 // MUTATION SLIDER MAPPING
 // ============================================================
@@ -196,6 +210,12 @@ export function setupUI() {
   // Rule toggles
   setupRuleToggles('birth-toggles', sim.birthRule);
   setupRuleToggles('survival-toggles', sim.survivalRule);
+
+  // Randomize rules
+  document.getElementById('random-rules-btn').addEventListener('click', () => {
+    randomizeRuleSet('birth-toggles', sim.birthRule);
+    randomizeRuleSet('survival-toggles', sim.survivalRule);
+  });
 
   // Mutation slider
   const mutationSlider = document.getElementById('mutation-slider');
