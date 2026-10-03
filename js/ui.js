@@ -121,22 +121,22 @@ function drawSparkline() {
 }
 
 // ============================================================
-// RULE PARSING
+// RULE TOGGLES
 // ============================================================
-function parseRule(str) {
-  return new Set(
-    str.split(',').map(s => s.trim()).filter(s => /^[0-8]$/.test(s)).map(Number)
-  );
-}
-
-function validateRuleInput(input) {
-  const val = input.value.trim();
-  if (val === '' || /^([0-8]\s*,\s*)*[0-8]$/.test(val)) {
-    input.classList.remove('invalid');
-    return true;
-  }
-  input.classList.add('invalid');
-  return false;
+function setupRuleToggles(containerId, ruleSet) {
+  const container = document.getElementById(containerId);
+  container.querySelectorAll('.rule-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const n = parseInt(btn.dataset.n, 10);
+      if (ruleSet.has(n)) {
+        ruleSet.delete(n);
+        btn.classList.remove('active');
+      } else {
+        ruleSet.add(n);
+        btn.classList.add('active');
+      }
+    });
+  });
 }
 
 // ============================================================
@@ -193,21 +193,9 @@ export function setupUI() {
     restartSimInterval();
   });
 
-  // Rule inputs
-  const birthInput = document.getElementById('birth-input');
-  const survivalInput = document.getElementById('survival-input');
-
-  birthInput.addEventListener('input', () => {
-    if (validateRuleInput(birthInput)) {
-      sim.birthRule = parseRule(birthInput.value);
-    }
-  });
-
-  survivalInput.addEventListener('input', () => {
-    if (validateRuleInput(survivalInput)) {
-      sim.survivalRule = parseRule(survivalInput.value);
-    }
-  });
+  // Rule toggles
+  setupRuleToggles('birth-toggles', sim.birthRule);
+  setupRuleToggles('survival-toggles', sim.survivalRule);
 
   // Mutation slider
   const mutationSlider = document.getElementById('mutation-slider');

@@ -33,14 +33,32 @@
   <!-- Rules -->
   <div class="section">
     <div class="section-title">Rules</div>
-    <div class="rule-row">
-      <div class="rule-field">
-        <label>B:</label>
-        <input type="text" id="birth-input" value="3" title="Birth rule (comma-separated 0-8)">
+    <div class="rule-toggle-group">
+      <label>B:</label>
+      <div class="rule-toggles" id="birth-toggles">
+        <button class="rule-toggle" data-n="0">0</button>
+        <button class="rule-toggle" data-n="1">1</button>
+        <button class="rule-toggle" data-n="2">2</button>
+        <button class="rule-toggle active" data-n="3">3</button>
+        <button class="rule-toggle" data-n="4">4</button>
+        <button class="rule-toggle" data-n="5">5</button>
+        <button class="rule-toggle" data-n="6">6</button>
+        <button class="rule-toggle" data-n="7">7</button>
+        <button class="rule-toggle" data-n="8">8</button>
       </div>
-      <div class="rule-field">
-        <label>S:</label>
-        <input type="text" id="survival-input" value="2,3" title="Survival rule (comma-separated 0-8)">
+    </div>
+    <div class="rule-toggle-group">
+      <label>S:</label>
+      <div class="rule-toggles" id="survival-toggles">
+        <button class="rule-toggle" data-n="0">0</button>
+        <button class="rule-toggle" data-n="1">1</button>
+        <button class="rule-toggle active" data-n="2">2</button>
+        <button class="rule-toggle active" data-n="3">3</button>
+        <button class="rule-toggle" data-n="4">4</button>
+        <button class="rule-toggle" data-n="5">5</button>
+        <button class="rule-toggle" data-n="6">6</button>
+        <button class="rule-toggle" data-n="7">7</button>
+        <button class="rule-toggle" data-n="8">8</button>
       </div>
     </div>
   </div>

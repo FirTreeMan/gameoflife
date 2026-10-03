@@ -150,43 +150,51 @@ input[type="range"] {
   height: 4px;
 }
 
-/* Text inputs (rule editor) */
-.rule-row {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.rule-field {
+/* Rule toggle editor */
+.rule-toggle-group {
   display: flex;
   align-items: center;
-  gap: 4px;
-  flex: 1;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.rule-toggle-group:last-child {
+  margin-bottom: 0;
 }
 
-.rule-field label {
+.rule-toggle-group > label {
   font-size: 11px;
   color: #777;
   font-weight: bold;
+  min-width: 16px;
 }
 
-input[type="text"] {
+.rule-toggles {
+  display: flex;
+  gap: 2px;
+}
+
+.rule-toggle {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  font-size: 10px;
+  text-align: center;
+  line-height: 20px;
+  border-radius: 3px;
   background: #1a1a30;
   border: 1px solid #333;
-  color: #c0c0c0;
-  padding: 4px 6px;
-  border-radius: 3px;
-  font-family: inherit;
-  font-size: 12px;
-  width: 100%;
-  transition: border-color 0.15s;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.12s;
 }
-input[type="text"]:focus {
-  outline: none;
+.rule-toggle:hover {
+  border-color: #555;
+  color: #aaa;
+}
+.rule-toggle.active {
+  background: #1a3a2a;
   border-color: #00ff41;
-}
-input[type="text"].invalid {
-  border-color: #ff4444;
+  color: #00ff41;
 }
 
 /* Pattern buttons */
