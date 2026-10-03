@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(/Users/shilohk/IdeaProjects/gameoflife/index.html:*)",
+      "Bash(/Users/shilohk/IdeaProjects/gameoflife/README.md:*)",
+      "Bash(/Users/shilohk/IdeaProjects/gameoflife/.gitignore:*)",
+      "Bash(/Users/shilohk/IdeaProjects/gameoflife/js/input.js:*)",
+      "Bash(/Users/shilohk/IdeaProjects/gameoflife/js/renderer.js:*)",
+      "Bash(/Users/shilohk/IdeaProjects/gameoflife/js/main.js:*)",
+      "mcp__idea__list_directory_tree"
+    ]
+  }
+}

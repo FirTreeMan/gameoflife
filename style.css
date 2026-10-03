@@ -1,0 +1,273 @@
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #1a1a2e;
+  overflow: hidden;
+  font-family: 'Courier New', monospace;
+  color: #c0c0c0;
+}
+
+canvas#canvas {
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+/* ============================================================
+   CONTROL PANEL
+   ============================================================ */
+#controls {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  background: rgba(16, 16, 32, 0.94);
+  border: 1px solid #2a2a3a;
+  border-radius: 8px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  width: 260px;
+  z-index: 10;
+  user-select: none;
+  font-size: 13px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+#controls.collapsed .section {
+  display: none;
+}
+
+/* Header */
+#header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid #2a2a3a;
+}
+
+#header h1 {
+  font-size: 14px;
+  font-weight: bold;
+  color: #00ff41;
+  letter-spacing: 2px;
+}
+
+#toggle-btn {
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 2px 4px;
+  line-height: 1;
+}
+#toggle-btn:hover { color: #aaa; }
+
+/* Sections */
+.section {
+  padding: 10px 14px;
+  border-bottom: 1px solid #1e1e30;
+}
+.section:last-child {
+  border-bottom: none;
+}
+
+.section-title {
+  font-size: 10px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #556;
+  margin-bottom: 8px;
+}
+
+/* Buttons */
+.btn-row {
+  display: flex;
+  gap: 4px;
+}
+
+button {
+  background: #22223a;
+  border: 1px solid #333;
+  color: #b0b0b0;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 11px;
+  transition: background 0.15s, border-color 0.15s;
+}
+button:hover {
+  background: #2e2e4a;
+  border-color: #555;
+  color: #ddd;
+}
+button:active {
+  background: #1a1a30;
+}
+button.active {
+  background: #1a3a2a;
+  border-color: #00ff41;
+  color: #00ff41;
+}
+
+/* Sliders */
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.slider-row label {
+  font-size: 11px;
+  color: #777;
+  white-space: nowrap;
+  min-width: 40px;
+}
+
+.slider-row .slider-value {
+  font-size: 11px;
+  color: #999;
+  min-width: 45px;
+  text-align: right;
+}
+
+input[type="range"] {
+  flex: 1;
+  accent-color: #00ff41;
+  cursor: pointer;
+  height: 4px;
+}
+
+/* Text inputs (rule editor) */
+.rule-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.rule-field {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.rule-field label {
+  font-size: 11px;
+  color: #777;
+  font-weight: bold;
+}
+
+input[type="text"] {
+  background: #1a1a30;
+  border: 1px solid #333;
+  color: #c0c0c0;
+  padding: 4px 6px;
+  border-radius: 3px;
+  font-family: inherit;
+  font-size: 12px;
+  width: 100%;
+  transition: border-color 0.15s;
+}
+input[type="text"]:focus {
+  outline: none;
+  border-color: #00ff41;
+}
+input[type="text"].invalid {
+  border-color: #ff4444;
+}
+
+/* Pattern buttons */
+.pattern-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+
+.pattern-btn {
+  font-size: 10px;
+  padding: 4px 2px;
+  text-align: center;
+}
+
+#stamp-hint {
+  display: none;
+  font-size: 10px;
+  color: #666;
+  margin-top: 6px;
+  text-align: center;
+  font-style: italic;
+}
+
+/* Sparkline */
+#sparkline {
+  width: 100%;
+  height: 40px;
+  border-radius: 3px;
+  border: 1px solid #222;
+  display: block;
+}
+
+/* Info bar */
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px 12px;
+  font-size: 11px;
+}
+
+.info-grid .info-label {
+  color: #556;
+}
+
+.info-grid .info-value {
+  color: #999;
+  text-align: right;
+}
+
+/* Zoom controls */
+.zoom-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.zoom-row button {
+  padding: 3px 8px;
+  font-size: 13px;
+  font-weight: bold;
+  min-width: 28px;
+}
+
+.zoom-row .zoom-display {
+  flex: 1;
+  text-align: center;
+  font-size: 11px;
+  color: #888;
+}
+
+/* Help hint */
+#help-hint {
+  position: fixed;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: #444;
+  z-index: 10;
+  font-family: 'Courier New', monospace;
+  pointer-events: none;
+}

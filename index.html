@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game of Life</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="canvas"></canvas>
+
+<div id="controls">
+  <div id="header">
+    <h1>GAME OF LIFE</h1>
+    <button id="toggle-btn" title="Collapse/Expand">&#x25B2;</button>
+  </div>
+
+  <!-- Playback -->
+  <div class="section">
+    <div class="section-title">Playback</div>
+    <div class="btn-row">
+      <button id="step-btn" title="Single step (N)">Step</button>
+      <button id="play-btn" title="Play/Pause (Space)">&#x25B6; Play</button>
+      <button id="reset-btn" title="Reset (R)">Reset</button>
+    </div>
+    <div class="slider-row">
+      <label>Speed</label>
+      <input type="range" id="speed-slider" min="1" max="60" value="10">
+      <span class="slider-value"><span id="speed-val">10</span> sps</span>
+    </div>
+  </div>
+
+  <!-- Rules -->
+  <div class="section">
+    <div class="section-title">Rules</div>
+    <div class="rule-row">
+      <div class="rule-field">
+        <label>B:</label>
+        <input type="text" id="birth-input" value="3" title="Birth rule (comma-separated 0-8)">
+      </div>
+      <div class="rule-field">
+        <label>S:</label>
+        <input type="text" id="survival-input" value="2,3" title="Survival rule (comma-separated 0-8)">
+      </div>
+    </div>
+  </div>
+
+  <!-- Mutation -->
+  <div class="section">
+    <div class="section-title">Mutation</div>
+    <div class="slider-row">
+      <label>Rate</label>
+      <input type="range" id="mutation-slider" min="0" max="1000" value="0">
+      <span class="slider-value" id="mutation-val">0</span>
+    </div>
+  </div>
+
+  <!-- Patterns -->
+  <div class="section">
+    <div class="section-title">Patterns</div>
+    <div class="pattern-grid">
+      <button class="pattern-btn" data-pattern="glider">Glider</button>
+      <button class="pattern-btn" data-pattern="lwss">LWSS</button>
+      <button class="pattern-btn" data-pattern="pulsar">Pulsar</button>
+      <button class="pattern-btn" data-pattern="rpentomino">R-pent</button>
+      <button class="pattern-btn" data-pattern="gospergun">Gun</button>
+      <button class="pattern-btn" data-pattern="pentadecathlon">Penta</button>
+    </div>
+    <div id="stamp-hint">Click to place &middot; R to rotate &middot; Esc to cancel</div>
+  </div>
+
+  <!-- Population graph -->
+  <div class="section">
+    <div class="section-title">Population</div>
+    <canvas id="sparkline" width="232" height="40"></canvas>
+  </div>
+
+  <!-- Info -->
+  <div class="section">
+    <div class="info-grid">
+      <span class="info-label">Gen</span>
+      <span class="info-value" id="gen-count">0</span>
+      <span class="info-label">Pop</span>
+      <span class="info-value" id="pop-count">0</span>
+      <span class="info-label">Pos</span>
+      <span class="info-value" id="cursor-pos">-</span>
+      <span class="info-label">Zoom</span>
+      <span class="info-value"><span id="zoom-val">10.0</span>x</span>
+    </div>
+    <div class="zoom-row">
+      <button id="zoom-out-btn" title="Zoom out">&minus;</button>
+      <div class="zoom-display">Zoom</div>
+      <button id="zoom-in-btn" title="Zoom in">+</button>
+      <button id="fit-btn" title="Fit to content">Fit</button>
+    </div>
+  </div>
+</div>
+
+<div id="help-hint">Click: draw &middot; Right-drag: pan &middot; Scroll: zoom &middot; Space: play/pause &middot; N: step &middot; R: reset</div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
