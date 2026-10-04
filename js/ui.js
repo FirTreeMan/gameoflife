@@ -333,6 +333,17 @@ export function setupUI() {
     highlightActiveSavedRule();
   });
 
+  // Copy rules to clipboard
+  const copyBtn = document.getElementById('copy-rules-btn');
+  copyBtn.addEventListener('click', () => {
+    const label = rulesetLabel(sim.birthRule, sim.survivalRule);
+    navigator.clipboard.writeText(label).then(() => {
+      const orig = copyBtn.textContent;
+      copyBtn.textContent = 'Copied';
+      setTimeout(() => { copyBtn.textContent = orig; }, 1000);
+    });
+  });
+
   // Save rules
   document.getElementById('save-rules-btn').addEventListener('click', saveCurrentRuleset);
 
