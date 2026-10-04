@@ -112,6 +112,26 @@ export function resizeGrid(newSize) {
   setCells(next);
 }
 
+// Snap a line from start to end to the nearest orthogonal or diagonal direction
+export function snapLine(sx, sy, ex, ey) {
+  const dx = ex - sx;
+  const dy = ey - sy;
+  const adx = Math.abs(dx);
+  const ady = Math.abs(dy);
+
+  if (adx > ady * 2) {
+    return { ex: ex, ey: sy };
+  } else if (ady > adx * 2) {
+    return { ex: sx, ey: ey };
+  } else {
+    const dist = Math.max(adx, ady);
+    return {
+      ex: sx + dist * Math.sign(dx),
+      ey: sy + dist * Math.sign(dy)
+    };
+  }
+}
+
 export function doStep() {
   step();
   applyMutation();

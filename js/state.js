@@ -59,7 +59,15 @@ export const interaction = {
   lastGridPos: null,
   stampPattern: null,
   stampRotation: 0,
-  stampPreviewPos: null
+  stampPreviewPos: null,
+  stampOverride: false,
+  eraser: false,
+  brush: 'default',    // 'default' | 'batch' | 'line'
+  batchSize: 3,
+  lineStart: null,     // {x, y} for line brush start
+  linePreview: null,    // [x, y] for line brush current end
+  selectStart: null,    // {x, y} for select brush start
+  selectEnd: null       // {x, y} for select brush end (confirmed)
 };
 
 // ============================================================
@@ -86,4 +94,31 @@ export function rotatePattern(cells, times) {
     result = result.map(([x, y]) => [-y, x]);
   }
   return result;
+}
+
+export function getPatternBounds(pattern, times) {
+  if (!pattern.bounds) {
+    // Fallback: tight bounding box from cells
+    const cells = rotatePattern(pattern.cells, times);
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const [dx, dy] of cells) {
+      if (dx < minX) minX = dx;
+      if (dx > maxX) maxX = dx;
+      if (dy < minY) minY = dy;
+      if (dy > maxY) maxY = dy;
+    }
+    return { minX, minY, maxX, maxY };
+  }
+  // Rotate the four corners of the original selection rectangle
+  const { w, h } = pattern.bounds;
+  let corners = [[0, 0], [w - 1, 0], [0, h - 1], [w - 1, h - 1]];
+  corners = rotatePattern(corners, times);
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const [cx, cy] of corners) {
+    if (cx < minX) minX = cx;
+    if (cx > maxX) maxX = cx;
+    if (cy < minY) minY = cy;
+    if (cy > maxY) maxY = cy;
+  }
+  return { minX, minY, maxX, maxY };
 }

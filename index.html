@@ -96,14 +96,6 @@
     </div>
   </div>
 
-  <!-- Patterns -->
-  <div class="section">
-    <div class="section-title">Patterns</div>
-    <div class="pattern-grid">
-    </div>
-    <div id="stamp-hint">Click to place &middot; R to rotate &middot; Esc to cancel</div>
-  </div>
-
   <!-- Grid Size -->
   <div class="section">
     <div class="section-title">Grid Size</div>
@@ -140,6 +132,39 @@
       <button id="zoom-in-btn" title="Zoom in">+</button>
       <button id="fit-btn" title="Fit to content">Fit</button>
     </div>
+  </div>
+</div>
+
+<div id="toolbar">
+  <!-- Brushes -->
+  <div class="section">
+    <div class="section-title">Brushes</div>
+    <div class="btn-row">
+      <button class="brush-btn active" data-brush="default" title="Default brush (1)">Default</button>
+      <button class="brush-btn" data-brush="batch" title="Circle brush (2)">Circle</button>
+      <button class="brush-btn" data-brush="line" title="Line brush (3)">Line</button>
+      <button class="brush-btn" data-brush="select" title="Select region (4)">Select</button>
+    </div>
+    <div class="btn-row" style="margin-top:4px">
+      <button id="eraser-btn" title="Toggle eraser mode (E)" style="flex:1">Eraser</button>
+    </div>
+    <div id="batch-size-row" class="slider-row" style="display:none">
+      <label>Size</label>
+      <input type="range" id="batch-size-slider" min="1" max="51" step="2" value="3">
+      <input type="text" id="batch-size-val" class="editable-value" value="3">
+    </div>
+  </div>
+
+  <!-- Patterns -->
+  <div class="section">
+    <div class="section-title-row">
+      <div class="section-title">Patterns</div>
+      <button id="stamp-override-btn" title="Clear non-pattern cells within bounding box">Override</button>
+      <button id="save-pattern-btn" style="display:none" title="Save selected region as pattern">Save Selection</button>
+    </div>
+    <div class="pattern-grid" id="pattern-grid">
+    </div>
+    <div id="stamp-hint">Click to place &middot; R to rotate &middot; Esc to cancel</div>
   </div>
 </div>
 

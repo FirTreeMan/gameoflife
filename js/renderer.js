@@ -1,5 +1,5 @@
-import { GRID_SIZE, getCells, viewport, interaction, PATTERNS, rotatePattern } from './state.js';
-import { parseKey } from './simulation.js';
+import { GRID_SIZE, getCells, viewport, interaction, PATTERNS, rotatePattern, getPatternBounds } from './state.js';
+import { parseKey, snapLine } from './simulation.js';
 
 let canvas, ctx;
 let dpr = 1;
@@ -128,6 +128,21 @@ function render() {
     if (pattern) {
       const cells = rotatePattern(pattern.cells, interaction.stampRotation);
       const [ox, oy] = interaction.stampPreviewPos;
+
+      // Override bounding box preview
+      if (interaction.stampOverride) {
+        const { minX, minY, maxX, maxY } = getPatternBounds(pattern, interaction.stampRotation);
+        const [px0, py0] = gridToCanvas(ox + minX, oy + minY);
+        const [px1, py1] = gridToCanvas(ox + maxX + 1, oy + maxY + 1);
+        ctx.fillStyle = 'rgba(255, 60, 60, 0.12)';
+        ctx.fillRect(px0, py0, px1 - px0, py1 - py0);
+        ctx.strokeStyle = 'rgba(255, 60, 60, 0.4)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3, 3]);
+        ctx.strokeRect(px0, py0, px1 - px0, py1 - py0);
+        ctx.setLineDash([]);
+      }
+
       ctx.fillStyle = 'rgba(0, 255, 65, 0.35)';
       for (const [dx, dy] of cells) {
         const gx = ox + dx;
@@ -137,6 +152,68 @@ function render() {
         ctx.fillRect(px, py, z, z);
       }
     }
+  }
+
+  // Line brush preview
+  if (interaction.brush === 'line' && interaction.lineStart && interaction.linePreview) {
+    const s = interaction.lineStart;
+    const [ex, ey] = interaction.linePreview;
+    const snapped = snapLine(s.x, s.y, ex, ey);
+    ctx.fillStyle = 'rgba(0, 255, 65, 0.35)';
+    // Walk the snapped line and draw preview cells
+    const adx = Math.abs(snapped.ex - s.x);
+    const ady = Math.abs(snapped.ey - s.y);
+    const sx = s.x < snapped.ex ? 1 : s.x > snapped.ex ? -1 : 0;
+    const sy = s.y < snapped.ey ? 1 : s.y > snapped.ey ? -1 : 0;
+    let err = adx - ady;
+    let cx = s.x, cy = s.y;
+    while (true) {
+      if (cx >= 0 && cx < GRID_SIZE && cy >= 0 && cy < GRID_SIZE) {
+        const [px, py] = gridToCanvas(cx, cy);
+        ctx.fillRect(px, py, z, z);
+      }
+      if (cx === snapped.ex && cy === snapped.ey) break;
+      const e2 = 2 * err;
+      if (e2 > -ady) { err -= ady; cx += sx; }
+      if (e2 < adx) { err += adx; cy += sy; }
+    }
+  }
+
+  // Batch brush cursor preview (circle)
+  if (interaction.brush === 'batch' && !interaction.stampPattern) {
+    const posEl = document.getElementById('cursor-pos');
+    const posText = posEl ? posEl.textContent : '-';
+    if (posText !== '-') {
+      const [bx, by] = posText.split(',').map(Number);
+      if (!isNaN(bx) && !isNaN(by)) {
+        const r = Math.floor(interaction.batchSize / 2);
+        const [cx, cy] = gridToCanvas(bx + 0.5, by + 0.5);
+        ctx.strokeStyle = 'rgba(0, 255, 65, 0.5)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(cx, cy, (r + 0.5) * z, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    }
+  }
+
+  // Selection rectangle preview
+  if (interaction.selectStart && interaction.selectEnd) {
+    const s = interaction.selectStart;
+    const e = interaction.selectEnd;
+    const x0 = Math.min(s.x, e.x);
+    const y0 = Math.min(s.y, e.y);
+    const x1 = Math.max(s.x, e.x) + 1;
+    const y1 = Math.max(s.y, e.y) + 1;
+    const [px0, py0] = gridToCanvas(x0, y0);
+    const [px1, py1] = gridToCanvas(x1, y1);
+    ctx.strokeStyle = 'rgba(100, 180, 255, 0.7)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 3]);
+    ctx.strokeRect(px0, py0, px1 - px0, py1 - py0);
+    ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(100, 180, 255, 0.08)';
+    ctx.fillRect(px0, py0, px1 - px0, py1 - py0);
   }
 
   requestAnimationFrame(render);
