@@ -49,21 +49,31 @@ export function step() {
   sim.generation++;
 }
 
+// Floyd's algorithm: select exactly n distinct indices from [0, N)
+function floydSample(N, n) {
+  const selected = new Set();
+  for (let j = N - n; j < N; j++) {
+    const r = Math.floor(Math.random() * (j + 1));
+    if (selected.has(r)) selected.add(j);
+    else selected.add(r);
+  }
+  return selected;
+}
+
 export function applyMutation() {
   if (sim.mutationRate <= 0) return;
   const liveCells = getCells();
   const totalCells = GRID_SIZE * GRID_SIZE;
-  let numToggles = Math.round(sim.mutationRate * totalCells);
+  const numToggles = Math.min(Math.round(sim.mutationRate * totalCells), totalCells);
+  if (numToggles <= 0) return;
 
-  for (let i = 0; i < numToggles; i++) {
-    const x = Math.floor(Math.random() * GRID_SIZE);
-    const y = Math.floor(Math.random() * GRID_SIZE);
+  const indices = floydSample(totalCells, numToggles);
+  for (const idx of indices) {
+    const x = idx % GRID_SIZE;
+    const y = (idx - x) / GRID_SIZE;
     const key = cellKey(x, y);
-    if (liveCells.has(key)) {
-      liveCells.delete(key);
-    } else {
-      liveCells.add(key);
-    }
+    if (liveCells.has(key)) liveCells.delete(key);
+    else liveCells.add(key);
   }
 }
 
@@ -76,17 +86,16 @@ export function seedCenter(rate, size) {
   const maxC = Math.min(GRID_SIZE, minC + size);
   const span = maxC - minC;
   const regionCells = span * span;
-  let numToggles = Math.round(rate * regionCells);
+  const numToggles = Math.min(Math.round(rate * regionCells), regionCells);
+  if (numToggles <= 0) return;
 
-  for (let i = 0; i < numToggles; i++) {
-    const x = minC + Math.floor(Math.random() * span);
-    const y = minC + Math.floor(Math.random() * span);
-    const key = cellKey(x, y);
-    if (liveCells.has(key)) {
-      liveCells.delete(key);
-    } else {
-      liveCells.add(key);
-    }
+  const indices = floydSample(regionCells, numToggles);
+  for (const idx of indices) {
+    const dx = idx % span;
+    const dy = (idx - dx) / span;
+    const key = cellKey(minC + dx, minC + dy);
+    if (liveCells.has(key)) liveCells.delete(key);
+    else liveCells.add(key);
   }
 }
 
