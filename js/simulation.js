@@ -18,9 +18,8 @@ export function step() {
     for (let dx = -1; dx <= 1; dx++) {
       for (let dy = -1; dy <= 1; dy++) {
         if (dx === 0 && dy === 0) continue;
-        const nx = x + dx;
-        const ny = y + dy;
-        if (nx < 0 || nx >= GRID_SIZE || ny < 0 || ny >= GRID_SIZE) continue;
+        const nx = ((x + dx) % GRID_SIZE + GRID_SIZE) % GRID_SIZE;
+        const ny = ((y + dy) % GRID_SIZE + GRID_SIZE) % GRID_SIZE;
         const nk = cellKey(nx, ny);
         neighborCounts.set(nk, (neighborCounts.get(nk) || 0) + 1);
       }
