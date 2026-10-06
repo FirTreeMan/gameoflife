@@ -2,7 +2,7 @@ import { GRID_SIZE, getCells, interaction, viewport, PATTERNS, rotatePattern, ge
 import { cellKey, snapLine } from './simulation.js';
 import { getCanvas, canvasToGrid } from './renderer.js';
 import { panStart, panMove, panEnd, applyZoom } from './viewport.js';
-import { toggleSim, doSingleStep, resetAll, updateInfo } from './ui.js';
+import { toggleSim, doSingleStep, resetAll, updateInfo, updateSelectInfo, copySelection, pasteSelection, clearSelection } from './ui.js';
 
 function bresenham(x0, y0, x1, y1, callback) {
   const adx = Math.abs(x1 - x0);
@@ -94,6 +94,7 @@ export function setupInputHandlers() {
         interaction.selectStart = { x: gx, y: gy };
         interaction.selectEnd = { x: gx, y: gy };
         interaction.drawing = true;
+        updateSelectInfo();
         return;
       }
 
@@ -155,6 +156,7 @@ export function setupInputHandlers() {
     if (interaction.drawing) {
       if (interaction.brush === 'select') {
         interaction.selectEnd = { x: gx, y: gy };
+        updateSelectInfo();
         return;
       }
 
@@ -196,6 +198,7 @@ export function setupInputHandlers() {
       const h = Math.abs(se.y - sx.y) + 1;
       const saveBtn = document.getElementById('save-pattern-btn');
       saveBtn.style.display = (w > 0 && h > 0) ? '' : 'none';
+      updateSelectInfo();
       return;
     }
 
@@ -253,12 +256,28 @@ export function setupInputHandlers() {
       document.querySelector('.brush-btn[data-brush="select"]').click();
     } else if (e.code === 'KeyE') {
       document.getElementById('eraser-btn').click();
+    } else if (e.code === 'KeyC' && (e.ctrlKey || e.metaKey)) {
+      if (interaction.selectStart && interaction.selectEnd && !interaction.drawing) {
+        e.preventDefault();
+        copySelection();
+      }
+    } else if (e.code === 'KeyV' && (e.ctrlKey || e.metaKey)) {
+      if (interaction.selectStart && interaction.selectEnd && !interaction.drawing) {
+        e.preventDefault();
+        pasteSelection();
+      }
+    } else if ((e.code === 'Delete' || e.code === 'Backspace') && !e.ctrlKey && !e.metaKey) {
+      if (interaction.selectStart && interaction.selectEnd && !interaction.drawing) {
+        e.preventDefault();
+        clearSelection();
+      }
     } else if (e.code === 'Escape') {
       // Clear selection
       if (interaction.selectStart) {
         interaction.selectStart = null;
         interaction.selectEnd = null;
         document.getElementById('save-pattern-btn').style.display = 'none';
+        updateSelectInfo();
       }
       if (interaction.stampPattern) {
         interaction.stampPattern = null;

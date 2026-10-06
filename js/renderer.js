@@ -214,6 +214,22 @@ function render() {
     ctx.setLineDash([]);
     ctx.fillStyle = 'rgba(100, 180, 255, 0.08)';
     ctx.fillRect(px0, py0, px1 - px0, py1 - py0);
+
+    // W×H label near the bottom-right corner of selection
+    const w = x1 - x0;
+    const h = y1 - y0;
+    const label = `${w}\u00d7${h}`;
+    ctx.font = `${5 * dpr}px monospace`;
+    ctx.textBaseline = 'top';
+    ctx.textAlign = 'left';
+    const lx = px1 + 3 * dpr;
+    const ly = py1 + 3 * dpr;
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.7)';
+    ctx.lineWidth = 2.5 * dpr;
+    ctx.lineJoin = 'round';
+    ctx.strokeText(label, lx, ly);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+    ctx.fillText(label, lx, ly);
   }
 
   requestAnimationFrame(render);

@@ -77,6 +77,91 @@ export function updateInfo() {
   document.getElementById('pop-count').textContent = getCells().size.toLocaleString();
 }
 
+export function updateSelectInfo() {
+  const infoEl = document.getElementById('select-info');
+  const hintEl = document.getElementById('select-copy-hint');
+  const s = interaction.selectStart;
+  const e = interaction.selectEnd;
+  if (!s || !e) {
+    infoEl.style.display = 'none';
+    return;
+  }
+  hintEl.style.display = interaction.drawing ? 'none' : '';
+  infoEl.style.display = '';
+}
+
+export function clearSelection() {
+  const s = interaction.selectStart;
+  const e = interaction.selectEnd;
+  if (!s || !e) return;
+  const x0 = Math.min(s.x, e.x);
+  const y0 = Math.min(s.y, e.y);
+  const x1 = Math.max(s.x, e.x);
+  const y1 = Math.max(s.y, e.y);
+  const liveCells = getCells();
+  for (let x = x0; x <= x1; x++) {
+    for (let y = y0; y <= y1; y++) {
+      liveCells.delete(cellKey(x, y));
+    }
+  }
+  updateInfo();
+}
+
+export function copySelection() {
+  const s = interaction.selectStart;
+  const e = interaction.selectEnd;
+  if (!s || !e) return;
+  const x0 = Math.min(s.x, e.x);
+  const y0 = Math.min(s.y, e.y);
+  const x1 = Math.max(s.x, e.x);
+  const y1 = Math.max(s.y, e.y);
+  const liveCells = getCells();
+  const cells = [];
+  for (let x = x0; x <= x1; x++) {
+    for (let y = y0; y <= y1; y++) {
+      if (liveCells.has(cellKey(x, y))) {
+        cells.push([x - x0, y - y0]);
+      }
+    }
+  }
+  const data = { cells, bounds: { w: x1 - x0 + 1, h: y1 - y0 + 1 } };
+  navigator.clipboard.writeText(JSON.stringify(data));
+}
+
+export function pasteSelection() {
+  const s = interaction.selectStart;
+  const e = interaction.selectEnd;
+  if (!s || !e) return;
+  const x0 = Math.min(s.x, e.x);
+  const y0 = Math.min(s.y, e.y);
+  const x1 = Math.max(s.x, e.x);
+  const y1 = Math.max(s.y, e.y);
+  navigator.clipboard.readText().then(text => {
+    try {
+      const data = JSON.parse(text);
+      if (!Array.isArray(data.cells)) return;
+      const liveCells = getCells();
+      // Clear the selection area only if override is enabled
+      if (interaction.stampOverride) {
+        for (let x = x0; x <= x1; x++) {
+          for (let y = y0; y <= y1; y++) {
+            liveCells.delete(cellKey(x, y));
+          }
+        }
+      }
+      // Place pasted cells at selection origin
+      for (const [dx, dy] of data.cells) {
+        const x = x0 + dx;
+        const y = y0 + dy;
+        if (x >= 0 && x < GRID_SIZE && y >= 0 && y < GRID_SIZE) {
+          liveCells.add(cellKey(x, y));
+        }
+      }
+      updateInfo();
+    } catch (e) { /* ignore non-JSON clipboard */ }
+  });
+}
+
 // ============================================================
 // SPARKLINE
 // ============================================================
@@ -486,6 +571,7 @@ export function setupUI() {
         interaction.selectStart = null;
         interaction.selectEnd = null;
         document.getElementById('save-pattern-btn').style.display = 'none';
+        updateSelectInfo();
       }
       persistSettings();
     });
