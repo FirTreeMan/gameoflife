@@ -59,18 +59,24 @@ function floydSample(N, n) {
   return selected;
 }
 
-export function applyMutation() {
+export function applyMutation(sizePct) {
   if (sim.mutationRate <= 0) return;
   const liveCells = getCells();
-  const totalCells = GRID_SIZE * GRID_SIZE;
-  const numToggles = Math.min(Math.round(sim.mutationRate * totalCells), totalCells);
+  const size = Math.max(1, Math.round((sizePct != null ? sizePct : 1) * GRID_SIZE));
+  const half = Math.floor(size / 2);
+  const center = Math.floor(GRID_SIZE / 2);
+  const minC = Math.max(0, center - half);
+  const maxC = Math.min(GRID_SIZE, minC + size);
+  const span = maxC - minC;
+  const regionCells = span * span;
+  const numToggles = Math.min(Math.round(sim.mutationRate * regionCells), regionCells);
   if (numToggles <= 0) return;
 
-  const indices = floydSample(totalCells, numToggles);
+  const indices = floydSample(regionCells, numToggles);
   for (const idx of indices) {
-    const x = idx % GRID_SIZE;
-    const y = (idx - x) / GRID_SIZE;
-    const key = cellKey(x, y);
+    const dx = idx % span;
+    const dy = (idx - dx) / span;
+    const key = cellKey(minC + dx, minC + dy);
     if (liveCells.has(key)) liveCells.delete(key);
     else liveCells.add(key);
   }
@@ -131,8 +137,8 @@ export function snapLine(sx, sy, ex, ey) {
   }
 }
 
-export function doStep() {
+export function doStep(mutSizePct) {
   step();
-  applyMutation();
+  applyMutation(mutSizePct);
   recordPopulation();
 }

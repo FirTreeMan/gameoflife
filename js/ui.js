@@ -8,6 +8,7 @@ import { zoomIn, zoomOut, fitToContent } from './viewport.js';
 let simIntervalId = null;
 let seedRate = 0.5;
 let seedSizePct = 1 / 3;
+let mutationSizePct = 1.0;
 
 // ============================================================
 // SIMULATION CONTROL
@@ -19,7 +20,7 @@ export function startSim() {
   btn.classList.add('active');
   btn.textContent = '\u23F8 Pause';
   simIntervalId = setInterval(() => {
-    doStep();
+    doStep(mutationSizePct);
     updateInfo();
     drawSparkline();
   }, 1000 / sim.speed);
@@ -45,7 +46,7 @@ function restartSimInterval() {
   if (sim.running) {
     clearInterval(simIntervalId);
     simIntervalId = setInterval(() => {
-      doStep();
+      doStep(mutationSizePct);
       updateInfo();
       drawSparkline();
     }, 1000 / sim.speed);
@@ -54,7 +55,7 @@ function restartSimInterval() {
 
 export function doSingleStep() {
   if (!sim.running) {
-    doStep();
+    doStep(mutationSizePct);
     updateInfo();
     drawSparkline();
   }
@@ -403,6 +404,7 @@ function persistSettings() {
     stampOverride: interaction.stampOverride,
     seedRate: seedRate,
     seedSizePct: seedSizePct,
+    mutationSizePct: mutationSizePct,
   };
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(data));
 }
@@ -538,6 +540,7 @@ export function setupUI() {
     if (saved.stampOverride != null) interaction.stampOverride = saved.stampOverride;
     if (saved.seedRate != null) seedRate = saved.seedRate;
     if (saved.seedSizePct != null) seedSizePct = saved.seedSizePct;
+    if (saved.mutationSizePct != null) mutationSizePct = saved.mutationSizePct;
   }
 
   // Playback buttons
@@ -674,6 +677,27 @@ export function setupUI() {
     persistSettings();
   });
 
+  // Mutation size slider
+  const mutSizeSlider = document.getElementById('mutation-size-slider');
+  const mutSizeVal = document.getElementById('mutation-size-val');
+
+  mutSizeSlider.addEventListener('input', () => {
+    mutationSizePct = parseInt(mutSizeSlider.value, 10) / 1000;
+    mutSizeVal.value = formatRate(mutationSizePct);
+    persistSettings();
+  });
+
+  mutSizeVal.addEventListener('change', () => {
+    let raw = mutSizeVal.value.trim().replace(/%$/, '');
+    let pct = parseFloat(raw);
+    if (isNaN(pct)) pct = 100;
+    pct = Math.max(0, Math.min(100, pct));
+    mutationSizePct = pct / 100;
+    mutSizeSlider.value = Math.round(mutationSizePct * 1000);
+    mutSizeVal.value = formatRate(mutationSizePct);
+    persistSettings();
+  });
+
   // Seed center slider + button
   const seedSlider = document.getElementById('seed-slider');
   const seedVal = document.getElementById('seed-val');
@@ -794,6 +818,8 @@ export function setupUI() {
   syncToggleUI('survival-toggles', sim.survivalRule);
   mutationSlider.value = Math.round(sim.mutationRate * 1000);
   mutationVal.value = formatRate(sim.mutationRate);
+  mutSizeSlider.value = Math.round(mutationSizePct * 1000);
+  mutSizeVal.value = formatRate(mutationSizePct);
   seedSlider.value = Math.round(seedRate * 1000);
   seedVal.value = formatRate(seedRate);
   seedSizeSlider.value = Math.round(seedSizePct * 1000);
